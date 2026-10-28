@@ -18,4 +18,19 @@
 body:not(.auth-locked) .auth-gate{display:none}
 .profile-copy{min-width:0;max-width:140px}
 .profile-copy strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-@media(max-width:480px){.auth-card{padding:26px 22px}.auth-gate{padding:16px}}
+@media(max-width:720px){
+  .auth-gate{padding:18px;align-items:start;padding-top:max(28px,env(safe-area-inset-top))}
+  .auth-card{width:100%;max-width:520px;padding:30px 25px;border-radius:18px}
+  .auth-brand{font-size:24px;margin-bottom:34px}
+  .auth-card>.eyebrow{font-size:11px}
+  .auth-card h1{font-size:29px;line-height:1.2}
+  .auth-copy{font-size:16px;line-height:1.55;margin:12px 0 25px}
+  #login-form,#password-reset-form{gap:12px}
+  #login-form label,#password-reset-form label{font-size:14px;margin-top:8px}
+  #login-form input,#password-reset-form input{height:52px;padding:0 15px;font-size:16px;border-radius:9px}
+  .auth-submit{height:52px;margin-top:12px;font-size:15px}
+  .auth-link{min-height:46px;margin-top:14px;font-size:14px}
+  .auth-message{font-size:14px;line-height:1.5}
+  .auth-note{font-size:12px}
+}
+@media(max-width:400px){.auth-card{padding:25px 20px}.auth-brand{margin-bottom:28px}}
