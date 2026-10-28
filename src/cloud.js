@@ -13,6 +13,12 @@ export async function searchSymbols(keywords) {
   return data?.results || [];
 }
 
+export async function fetchInitialAssetData(assetId) {
+  const { data, error } = await supabase.functions.invoke('fetch-asset', { body: { assetId } });
+  if (error) throw error;
+  return data;
+}
+
 export async function signIn(email, password) {
   const normalizedEmail = email.trim().toLowerCase();
   const { data, error } = await supabase.auth.signInWithPassword({ email: normalizedEmail, password });
@@ -139,6 +145,17 @@ export async function saveAssets(user, assets) {
       user_id: user.id, asset_id: id, priority: asset.priority, enabled: asset.enabled !== false,
     }, { onConflict: 'user_id,asset_id' });
     if (error) throw error;
+    if (!(asset.history || []).length) {
+      try {
+        const result = await fetchInitialAssetData(id);
+        if (result?.history?.length) {
+          asset.history = result.history;
+          asset.available = true;
+        }
+      } catch (fetchError) {
+        console.warn('Horizon initial market-data fetch deferred', fetchError);
+      }
+    }
   }
   const current = await supabase.from('watchlist_items').select('asset_id').eq('user_id', user.id);
   if (current.error) throw current.error;

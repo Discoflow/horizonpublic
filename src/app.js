@@ -21,6 +21,7 @@ function save(key, value) {
     else if (key === store.prefs) await savePreferences(user, value);
     localStorage.setItem(cacheKey(key), JSON.stringify(value));
     syncStatus('Données synchronisées');
+    if (key === store.assets) render();
   }).catch((error) => { console.error('Horizon cloud sync failed', error); syncStatus('Synchronisation à vérifier', true); });
 }
 const safe = (s = '') => String(s).replace(/[&<>"']/g, (c) => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
