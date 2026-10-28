@@ -7,6 +7,12 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
 });
 
+export async function searchSymbols(keywords) {
+  const { data, error } = await supabase.functions.invoke('search-symbols', { body: { keywords } });
+  if (error) throw error;
+  return data?.results || [];
+}
+
 export async function signIn(email, password) {
   const normalizedEmail = email.trim().toLowerCase();
   const { data, error } = await supabase.auth.signInWithPassword({ email: normalizedEmail, password });

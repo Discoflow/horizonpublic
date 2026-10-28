@@ -18,6 +18,16 @@
 body:not(.auth-locked) .auth-gate{display:none}
 .profile-copy{min-width:0;max-width:140px}
 .profile-copy strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ticker-search-wrap{position:relative}
+.ticker-search-wrap>input{width:100%;height:44px;padding:0 12px;border:1px solid #dfe5de;border-radius:7px;background:#fff;color:#17221d;font-size:14px}
+.ticker-search-status{margin:-3px 0 2px;color:#78827b;font-size:11px;line-height:1.45}
+.ticker-results{position:absolute;z-index:8;top:calc(100% + 5px);left:0;right:0;max-height:260px;overflow:auto;background:#fff;border:1px solid #dfe5de;border-radius:9px;box-shadow:0 12px 30px #15231b1f}
+.ticker-result{display:grid;width:100%;gap:3px;padding:11px 13px;border:0;border-bottom:1px solid #edf0eb;background:#fff;text-align:left;color:#17221d}
+.ticker-result:last-child{border-bottom:0}
+.ticker-result:hover,.ticker-result:focus{background:#f1f6ef}
+.ticker-result strong{font-size:13px}
+.ticker-result span{font-size:12px}
+.ticker-result small{color:#78827b;font-size:10px}
 @media(max-width:720px){
   .auth-gate{padding:18px;align-items:start;padding-top:max(28px,env(safe-area-inset-top))}
   .auth-card{width:100%;max-width:520px;padding:30px 25px;border-radius:18px}
@@ -32,5 +42,12 @@ body:not(.auth-locked) .auth-gate{display:none}
   .auth-link{min-height:46px;margin-top:14px;font-size:14px}
   .auth-message{font-size:14px;line-height:1.5}
   .auth-note{font-size:12px}
+  .ticker-search-wrap>input{height:52px;font-size:16px}
+  .ticker-search-status{font-size:13px}
+  .ticker-results{max-height:min(38dvh,300px)}
+  .ticker-result{padding:13px 14px;min-height:62px}
+  .ticker-result strong{font-size:15px}
+  .ticker-result span{font-size:14px}
+  .ticker-result small{font-size:12px}
 }
 @media(max-width:400px){.auth-card{padding:25px 20px}.auth-brand{margin-bottom:28px}}

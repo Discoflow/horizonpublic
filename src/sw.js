@@ -1,4 +1,4 @@
-const CACHE_NAME = 'horizon-v3';
+const CACHE_NAME = 'horizon-v4';
 const SHELL = [
   '', 'index.html', 'src/app.js', 'src/cloud.js', 'src/supabase-config.js',
   'src/indicators.js', 'src/planner.js', 'src/alerts.js', 'src/styles.css',

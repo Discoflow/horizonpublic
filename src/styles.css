@@ -7,7 +7,7 @@
   :root{font-size:16px}
   .sidebar{height:78px;padding:7px 8px calc(8px + env(safe-area-inset-bottom))}
   .main-nav{justify-content:space-around}
-  .nav-link{height:60px;min-width:64px;gap:4px;padding:5px 4px;font-size:11px;line-height:1.15}
+  .nav-link{height:60px;min-width:0;flex:1;gap:4px;padding:5px 2px;font-size:10px;line-height:1.15}
   .nav-icon{font-size:24px;line-height:1}
   .main-content{padding-bottom:78px}
   .topbar{height:58px;padding:0 17px}
@@ -65,5 +65,25 @@
   .form-note{font-size:12px}
   .modal-actions{gap:10px;flex-wrap:wrap}
   .modal-actions .button{height:46px;flex:1}
+  .modal .form-row{grid-template-columns:1fr}
+  .setting-row{flex-wrap:wrap;gap:10px}
+  .setting-row>span:first-child{flex:1 1 100%;min-width:0}
+  .settings-card .setting-control{margin-left:auto}
   .footer{font-size:10px;padding:11px 15px}
+  .table-wrap{overflow:visible}
+  .assets-card .table-wrap table,.assets-card table tbody,.assets-card table tr,.assets-card table td{display:block;width:100%;min-width:0}
+  .assets-card table thead{display:none}
+  .assets-card table tbody tr{margin:0 0 12px;padding:10px 14px;background:#fff;border:1px solid #e7ebe5;border-radius:12px;box-shadow:0 4px 16px #15231b08}
+  .assets-card table tbody tr:last-child{margin-bottom:0}
+  .assets-card table td{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:44px;padding:8px 0;border:0;border-bottom:1px solid #eff1ee;text-align:right;font-size:13px;overflow-wrap:anywhere}
+  .assets-card table td:last-child{border-bottom:0}
+  .assets-card table td::before{content:attr(data-label);flex:0 0 auto;margin-right:auto;color:#78827b;font-size:12px;font-weight:700;text-align:left}
+  .assets-card table td:first-child{align-items:flex-start;min-height:62px}
+  .asset-identity{max-width:70%;gap:10px;text-align:left}
+  .asset-identity strong{font-size:15px}
+  .asset-identity small{font-size:12px;white-space:normal}
+  .ticker-icon{width:34px;height:34px;flex:none;font-size:15px}
+  .priority-pill,.type-pill,.status-pill,.rsi-chip{font-size:12px}
+  .assets-card .empty-table{padding:22px 10px;text-align:center}
+  dialog.modal{max-height:calc(100dvh - 24px);overflow-y:auto;overscroll-behavior:contain}
 }
