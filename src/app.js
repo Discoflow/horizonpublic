@@ -1,11 +1,28 @@
 import { calculateIndicators, distancePercent } from './indicators.js';
 import { rankRefreshCandidates } from './planner.js';
+import { supabase, signIn, requestPasswordReset, updatePassword, signOut, loadAccount, saveAssets, saveAlerts, savePreferences } from './cloud.js';
 
 const $ = (s) => document.querySelector(s);
 const store = { assets: 'horizon.assets.v1', alerts: 'horizon.alerts.v1', prefs: 'horizon.prefs.v1' };
-const load = (key, fallback) => { try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; } };
-const save = (key, value) => localStorage.setItem(key, JSON.stringify(value));
-let assets = load(store.assets, []); let alerts = load(store.alerts, []); let prefs = load(store.prefs, { weeklySma: 20, monthlySma: 12, visible: ['summary', 'assets', 'alerts'], currency: 'USD' });
+const defaultPrefs = () => ({ weeklySma: 20, monthlySma: 12, rsiThreshold: 40, visible: ['summary', 'assets', 'alerts'], order: ['summary', 'assets', 'alerts'], currency: 'USD' });
+let currentUser = null; let syncQueue = Promise.resolve();
+const cacheKey = (key) => `${key}.${currentUser?.id || 'guest'}`;
+const load = (key, fallback) => { try { return JSON.parse(localStorage.getItem(cacheKey(key))) ?? fallback; } catch { return fallback; } };
+let assets = []; let alerts = []; let prefs = defaultPrefs();
+function syncStatus(label, failed = false) { const card = $('.sync-card'); if (!card) return; card.querySelector('strong').textContent = currentUser ? currentUser.email : 'Connexion sécurisée'; card.querySelector('span').textContent = label; card.querySelector('.sync-indicator').classList.toggle('sync-error', failed); }
+function save(key, value) {
+  localStorage.setItem(cacheKey(key), JSON.stringify(value));
+  if (!currentUser) return;
+  const user = currentUser;
+  syncStatus('Synchronisation…');
+  syncQueue = syncQueue.catch(() => {}).then(async () => {
+    if (key === store.assets) await saveAssets(user, value);
+    else if (key === store.alerts) await saveAlerts(user, value);
+    else if (key === store.prefs) await savePreferences(user, value);
+    localStorage.setItem(cacheKey(key), JSON.stringify(value));
+    syncStatus('Données synchronisées');
+  }).catch((error) => { console.error('Horizon cloud sync failed', error); syncStatus('Synchronisation à vérifier', true); });
+}
 const safe = (s = '') => String(s).replace(/[&<>"']/g, (c) => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
 const money = (x, currency = 'USD') => x == null ? '—' : new Intl.NumberFormat('fr-FR', { style: 'currency', currency, maximumFractionDigits: 2 }).format(x);
 const date = (d) => d ? new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${d.slice(0,10)}T00:00:00Z`)) : 'Indisponible';
@@ -79,5 +96,79 @@ function bindPageEvents() {
 function openAlertForm() { if(!assets.length){alert('Ajoutez un actif avant de créer une alerte.');return;} const dialog=document.createElement('dialog');dialog.className='modal';dialog.innerHTML=`<form method="dialog" id="alert-form"><div class="modal-heading"><div><span class="eyebrow">ALERTE PERSONNELLE</span><h2>Nouvelle alerte</h2></div><button class="icon-button" value="cancel">×</button></div><label>Actif<select name="assetId">${assets.map(a=>`<option value="${safe(a.id)}">${safe(a.symbol)} · ${safe(a.name)}</option>`).join('')}</select></label><label>Indicateur<select name="metric"><option value="rsi">RSI</option><option value="sma">Cours et SMA</option><option value="distance">Distance à la SMA</option></select></label><div class="form-row"><label>Période<select name="period"><option value="weekly">Hebdomadaire</option><option value="monthly">Mensuelle</option></select></label><label>Condition<select name="operator"><option value="below">Inférieur à</option><option value="above">Supérieur à</option></select></label></div><label>Seuil<input type="number" name="threshold" value="40" step="0.1" required /></label><p class="form-note">Une alerte sera inscrite dans l’application. Les notifications push nécessitent un backend configuré.</p><div class="modal-actions"><button class="button secondary" value="cancel">Annuler</button><button class="button primary" id="alert-submit" value="default">Créer l’alerte <span>→</span></button></div></form>`;document.body.append(dialog);dialog.showModal();dialog.addEventListener('close',()=>dialog.remove());dialog.querySelector('form').addEventListener('submit',e=>{if(!e.submitter||e.submitter.id!=='alert-submit')return;e.preventDefault();const d=new FormData(e.currentTarget),a=assets.find(x=>x.id===d.get('assetId'));const metric=d.get('metric'),period=d.get('period'),operator=d.get('operator'),threshold=Number(d.get('threshold'));if(!a||!Number.isFinite(threshold))return;alerts.push({id:crypto.randomUUID(),assetId:a.id,assetSymbol:a.symbol,metric,period,operator,threshold,enabled:true,createdAt:new Date().toISOString(),label:`${metric==='rsi'?'RSI':metric==='sma'?'Cours / SMA':'Distance SMA'} ${operator==='below'?'sous':'au-dessus'} ${threshold}`,periodLabel:period==='weekly'?'Hebdomadaire':'Mensuelle',armed:true});save(store.alerts,alerts);dialog.close();render();}); }
 async function enablePush(){const status=$('#push-status');if(!('Notification'in window)||!('serviceWorker'in navigator)){status.textContent='Notifications non disponibles dans ce navigateur.';return;}try{const permission=await Notification.requestPermission();status.textContent=permission==='granted'?'Autorisation accordée · configuration serveur requise.':`Autorisation ${permission==='denied'?'refusée':'non accordée'}.`;if(permission==='granted')new Notification('Horizon est prêt',{body:'Les notifications apparaîtront lorsque le backend sera configuré.',icon:new URL('icon.svg',location.href).href});}catch{status.textContent='Impossible d’activer les notifications.';}}
 $('#asset-form').addEventListener('submit',e=>{if(!e.submitter||e.submitter.id!=='asset-submit')return;e.preventDefault();const d=new FormData(e.currentTarget),symbol=String(d.get('symbol')).trim().toUpperCase(),name=String(d.get('name')).trim();if(!symbol||!name||assets.length>=50)return;const asset={id:crypto.randomUUID(),symbol,name,type:d.get('type'),currency:String(d.get('currency')).trim().toUpperCase(),market:String(d.get('market')).trim(),priority:d.get('priority'),enabled:true,available:true,history:[],createdAt:new Date().toISOString()};if(assets.some(a=>a.symbol===asset.symbol&&a.market===asset.market&&a.type===asset.type)){alert('Cet actif est déjà présent avec le même marché et le même type.');return;}assets.push(asset);save(store.assets,assets);$('#asset-dialog').close();location.hash='#assets';});
-addEventListener('hashchange',render);$('#year').textContent=new Date().getFullYear();render();
+function authMessage(text, failed = false) { const el = $('#auth-message'); el.textContent = text; el.classList.toggle('error', failed); }
+function showAuthMode(mode = 'login', message = '') {
+  document.body.classList.add('auth-locked');
+  $('#login-form').hidden = mode !== 'login';
+  $('#forgot-password').hidden = mode !== 'login';
+  $('#password-reset-form').hidden = mode !== 'reset';
+  $('#auth-title').textContent = mode === 'reset' ? 'Choisissez un mot de passe' : 'Bienvenue sur Horizon';
+  authMessage(message);
+}
+async function enterWorkspace(user) {
+  try {
+    const account = await loadAccount(user);
+    currentUser = user;
+    assets = account.assets;
+    alerts = account.alerts;
+    prefs = account.prefs;
+    localStorage.setItem(cacheKey(store.assets), JSON.stringify(assets));
+    localStorage.setItem(cacheKey(store.alerts), JSON.stringify(alerts));
+    localStorage.setItem(cacheKey(store.prefs), JSON.stringify(prefs));
+    $('#account-email').textContent = account.email;
+    $('.avatar').textContent = account.email.split('@')[0].slice(0, 2).toUpperCase();
+    document.body.classList.remove('auth-locked');
+    syncStatus('Données synchronisées');
+    authMessage('');
+    render();
+  } catch (error) {
+    currentUser = null;
+    showAuthMode('login', error.message || 'Connexion impossible. Vérifiez votre compte et réessayez.');
+  }
+}
+
+$('#login-form').addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const form = event.currentTarget, button = form.querySelector('button[type="submit"]');
+  button.disabled = true; authMessage('Vérification de votre accès…');
+  try { const user = await signIn(form.elements.email.value, form.elements.password.value); await enterWorkspace(user); }
+  catch (error) { authMessage(error.message || 'Connexion impossible. Vérifiez votre adresse et votre mot de passe.', true); }
+  finally { button.disabled = false; }
+});
+$('#forgot-password').addEventListener('click', async () => {
+  const email = $('#auth-email').value;
+  if (!email) { authMessage('Saisissez d’abord votre adresse e-mail.'); $('#auth-email').focus(); return; }
+  try { await requestPasswordReset(email); authMessage('Si cette adresse est autorisée, un lien de réinitialisation vient d’être envoyé.'); }
+  catch (error) { authMessage(error.message || 'Impossible d’envoyer le lien de réinitialisation.', true); }
+});
+$('#password-reset-form').addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const form = event.currentTarget, password = form.elements.password.value;
+  if (password !== form.elements.confirm.value) { authMessage('Les deux mots de passe ne correspondent pas.', true); return; }
+  const button = form.querySelector('button[type="submit"]'); button.disabled = true;
+  try {
+    await updatePassword(password);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('Votre session a expiré. Reconnectez-vous.');
+    await enterWorkspace(user);
+  } catch (error) { authMessage(error.message || 'Le mot de passe n’a pas pu être modifié.', true); }
+  finally { button.disabled = false; }
+});
+$('#sign-out').addEventListener('click', async () => { try { await signOut(); } catch (error) { console.error(error); syncStatus('Déconnexion à vérifier', true); } });
+supabase.auth.onAuthStateChange((event) => {
+  if (event === 'PASSWORD_RECOVERY') showAuthMode('reset', 'Saisissez votre nouveau mot de passe.');
+  if (event === 'SIGNED_OUT') {
+    currentUser = null; assets = []; alerts = []; prefs = defaultPrefs();
+    $('#account-email').textContent = 'Mon espace'; $('.avatar').textContent = 'H';
+    showAuthMode('login'); syncStatus('Déconnecté'); render();
+  }
+});
+async function initializeAuth() {
+  showAuthMode('login', '');
+  const { data, error } = await supabase.auth.getSession();
+  if (error) { authMessage('Impossible de vérifier la session. Rechargez la page.', true); return; }
+  if (data.session?.user) await enterWorkspace(data.session.user);
+}
+
+addEventListener('hashchange',render);$('#year').textContent=new Date().getFullYear();render();void initializeAuth();
 if('serviceWorker'in navigator)navigator.serviceWorker.register(new URL('../sw.js',import.meta.url)).catch(()=>{});

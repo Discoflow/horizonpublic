@@ -8,9 +8,35 @@
   <link rel="manifest" href="./manifest.webmanifest" />
   <link rel="icon" href="./icon.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="./src/styles.css" />
+  <link rel="stylesheet" href="./src/auth.css" />
   <title>Horizon — suivi des investissements</title>
 </head>
-<body>
+<body class="auth-locked">
+  <main id="auth-gate" class="auth-gate">
+    <section class="auth-card" aria-labelledby="auth-title">
+      <a class="brand auth-brand" href="#dashboard"><span class="brand-mark">H</span><span>horizon<span class="brand-dot">.</span></span></a>
+      <div class="eyebrow">ESPACE PERSONNEL SÉCURISÉ</div>
+      <h1 id="auth-title">Bienvenue sur Horizon</h1>
+      <p class="auth-copy">Connectez-vous avec votre compte autorisé pour retrouver votre espace.</p>
+      <form id="login-form">
+        <label for="auth-email">Adresse e-mail</label>
+        <input id="auth-email" name="email" type="email" autocomplete="username" required placeholder="vous@exemple.com" />
+        <label for="auth-password">Mot de passe</label>
+        <input id="auth-password" name="password" type="password" autocomplete="current-password" required />
+        <button class="button primary auth-submit" type="submit">Se connecter <span>→</span></button>
+      </form>
+      <button id="forgot-password" class="auth-link" type="button">Mot de passe oublié ?</button>
+      <form id="password-reset-form" hidden>
+        <label for="new-password">Nouveau mot de passe</label>
+        <input id="new-password" name="password" type="password" autocomplete="new-password" minlength="8" required />
+        <label for="confirm-password">Confirmer le mot de passe</label>
+        <input id="confirm-password" name="confirm" type="password" autocomplete="new-password" minlength="8" required />
+        <button class="button primary auth-submit" type="submit">Mettre à jour le mot de passe <span>→</span></button>
+      </form>
+      <p id="auth-message" class="auth-message" role="status" aria-live="polite"></p>
+      <div class="auth-note">Accès réservé aux comptes autorisés.</div>
+    </section>
+  </main>
   <div class="app-shell">
     <aside class="sidebar">
       <a class="brand" href="#dashboard"><span class="brand-mark">H</span><span>horizon<span class="brand-dot">.</span></span></a>
@@ -24,7 +50,7 @@
       <div class="sidebar-bottom">
         <div class="sync-card"><div class="sync-indicator"></div><div><strong>Source connectée</strong><span>En attente de configuration</span></div></div>
         <a href="#settings" data-page="settings" class="nav-link settings-link"><span class="nav-icon">⚙</span>Paramètres</a>
-        <div class="profile"><div class="avatar">MV</div><div><strong>Mon espace</strong><span>Compte personnel</span></div><button id="profile-menu" class="icon-button" aria-label="Options du compte">···</button></div>
+        <div class="profile"><div class="avatar">H</div><div class="profile-copy"><strong id="account-email">Mon espace</strong><span>Compte personnel</span></div><button id="sign-out" class="icon-button" aria-label="Se déconnecter" title="Se déconnecter">↪</button></div>
       </div>
     </aside>
     <main class="main-content">
@@ -34,6 +60,7 @@
     </main>
   </div>
   <dialog id="asset-dialog" class="modal"><form id="asset-form" method="dialog"><div class="modal-heading"><div><span class="eyebrow">UNIVERS DE SUIVI</span><h2>Ajouter un actif</h2></div><button class="icon-button" value="cancel" aria-label="Fermer">×</button></div><label>Symbole<input name="symbol" placeholder="Ex. AAPL, VWCE, BTC" required maxlength="20" /></label><label>Nom<input name="name" placeholder="Nom de l’actif" required maxlength="100" /></label><div class="form-row"><label>Type<select name="type"><option value="stock">Action</option><option value="etf">ETF</option><option value="crypto">Crypto</option></select></label><label>Devise<input name="currency" value="USD" maxlength="8" /></label></div><div class="form-row"><label>Marché / plateforme<input name="market" placeholder="NASDAQ / EUR" /></label><label>Priorité<select name="priority"><option value="high">Haute</option><option value="medium" selected>Moyenne</option><option value="low">Basse</option></select></label></div><p class="form-note">Aucun cours n’est inventé. Les prix apparaîtront après configuration de la source de données.</p><div class="modal-actions"><button class="button secondary" value="cancel">Annuler</button><button class="button primary" id="asset-submit" value="default">Ajouter à ma liste <span>→</span></button></div></form></dialog>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script type="module" src="./src/app.js"></script>
 </body>
 </html>
