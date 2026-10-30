@@ -1,1 +1,17 @@
-{"name":"Horizon — Investissements","short_name":"Horizon","description":"Suivi personnel des investissements","start_url":"./","display":"standalone","background_color":"#f4f6f2","theme_color":"#101714","icons":[{"src":"./icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]}
+{
+  "name": "Horizon — Investissements",
+  "short_name": "Horizon",
+  "description": "Suivez vos actions et vos alertes dans Horizon",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f4f6f4",
+  "theme_color": "#111a16",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

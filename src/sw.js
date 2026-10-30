@@ -1,4 +1,4 @@
-const CACHE_NAME = 'horizon-v4';
+const CACHE_NAME = 'horizon-v5';
 const SHELL = [
   '', 'index.html', 'src/app.js', 'src/cloud.js', 'src/supabase-config.js',
   'src/indicators.js', 'src/planner.js', 'src/alerts.js', 'src/styles.css',
@@ -9,7 +9,7 @@ self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(SHELL)));
   self.skipWaiting();
 });
-self.addEventListener('activate', (event) => event.waitUntil(self.clients.claim()));
+self.addEventListener('activate', (event) => event.waitUntil((async () => { const keys = await caches.keys(); await Promise.all(keys.filter((key) => key.startsWith('horizon-') && key !== CACHE_NAME).map((key) => caches.delete(key))); await self.clients.claim(); })()));
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
   if (event.request.method !== 'GET' || url.origin !== location.origin || !url.pathname.startsWith(new URL(self.registration.scope).pathname)) return;
