@@ -1,4 +1,4 @@
-# Horizon v1.5 — site public
+# Horizon v1.5.1 — site public
 
 Ces fichiers sont le site statique publié par GitHub Pages.
 

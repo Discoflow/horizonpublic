@@ -392,6 +392,63 @@ td strong { color: #29382f; font-weight: 620; font-variant-numeric: tabular-nums
   .detail-head h1 { font-size: 17px; }
   .detail-price-card { padding: 14px; }
 }
+@media (max-width: 760px) {
+  .nav-link { min-height: 58px; font-size: 11px; }
+  .nav-icon { font-size: 22px; }
+  .icon-button { width: 42px; height: 42px; font-size: 23px; }
+  .breadcrumb strong { font-size: 14px; }
+  .market-status { font-size: 12px; }
+  .page-heading h1 { font-size: 25px; }
+  .button { min-height: 46px; font-size: 14px; }
+  .summary-top { font-size: 12px; }
+  .summary-number { font-size: 25px; }
+  .summary-foot { font-size: 11px; }
+  .card-heading h2 { font-size: 16px; }
+  .text-link { font-size: 13px; }
+  .assets-card table td { min-height: 42px; font-size: 13px; }
+  .assets-card table td::before { font-size: 12px; }
+  .asset-identity .ticker-icon { width: 38px; height: 38px; }
+  .asset-identity strong { font-size: 14px; }
+  .asset-identity small { max-width: 60vw; font-size: 11px; }
+  .type-pill, .market-label, .status-pill, .rsi-chip { font-size: 11px; }
+  .toolbar-right select { min-height: 42px; font-size: 12px; }
+  .result-count { font-size: 12px; }
+  .alert-main strong { font-size: 13px; }
+  .alert-main small { font-size: 11px; }
+  .queue-row .status-pill { font-size: 11px; }
+  .settings-intro h2 { font-size: 16px; }
+  .setting-row { min-height: 70px; }
+  .setting-row strong { font-size: 13px; }
+  .setting-row small { font-size: 11px; }
+  .setting-control { font-size: 12px; }
+  .setting-control input { width: 70px; height: 40px; font-size: 14px; }
+  .detail-head h1 { font-size: 22px; }
+  .detail-ticker-icon { width: 46px; height: 46px; }
+  .detail-subtitle { font-size: 11px; }
+  .detail-symbol-line { font-size: 12px; }
+  .price-move { font-size: 12px; }
+  .price-date { font-size: 11px; }
+  .price-date strong { font-size: 12px; }
+  .card-heading .muted { font-size: 11px; }
+  .chart-tab { min-width: 40px; height: 34px; font-size: 12px; }
+  .stat-card span { font-size: 11px; }
+  .stat-card strong { font-size: 13px; }
+  .indicator-card h2 { font-size: 15px; }
+  .indicator-subrow { font-size: 12px; }
+  .footer { font-size: 11px; }
+  .modal label { font-size: 12px; }
+  .ticker-search-status { font-size: 12px; }
+  .ticker-result strong { font-size: 13px; }
+  .ticker-result span { font-size: 12px; }
+  .ticker-result small { font-size: 11px; }
+  .selected-security strong { font-size: 13px; }
+  .selected-security small { font-size: 11px; }
+}
+@media (max-width: 370px) {
+  .summary-top { font-size: 11px; }
+  .summary-foot { font-size: 11px; }
+  .detail-head h1 { font-size: 20px; }
+}
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
